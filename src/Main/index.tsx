@@ -2,14 +2,15 @@ import { createStaticNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import ConversationPage from '../Conversation';
-import CreatePage from '../Create';
-import CloudDishPage from '../CloudDisk';
-import MinePage from '../Mine';
+import ConversationPage from '@/Conversation';
+import CreatePage from '@/Create';
+import CloudDishPage from '@/CloudDisk';
+import MinePage from '@/Mine';
 import Ionicons, {
   type IoniconsIconName,
 } from '@react-native-vector-icons/ionicons';
 import { View, Text } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const conversation = 'conversation';
 const create = 'create';
@@ -82,10 +83,10 @@ const RootTabs = createBottomTabNavigator({
     };
   },
   screens: {
+    [mine]: MinePage,
     [conversation]: ConversationPage,
     [create]: CreatePage,
     [cloudDisk]: CloudDishPage,
-    [mine]: MinePage,
   },
 });
 
@@ -101,7 +102,9 @@ const Navigation = createStaticNavigation(RootStack);
 export default function MainPage() {
   return (
     <SafeAreaProvider>
-      <Navigation />
+      <GestureHandlerRootView>
+        <Navigation />
+      </GestureHandlerRootView>
     </SafeAreaProvider>
   );
 }
