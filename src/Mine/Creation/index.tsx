@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -6,50 +6,91 @@ import {
   Dimensions,
   useWindowDimensions,
 } from 'react-native';
+import Image from 'react-native-fast-image';
 import { TabFlashList as FlashList } from 'react-native-collapsible-tab/flash-list';
 
-const CellItem = ({ index }) => {
-  const r = Math.floor(Math.random() * 256);
-  const g = Math.floor(Math.random() * 256);
-  const b = Math.floor(Math.random() * 256);
-  const { width } = useWindowDimensions();
-  const cellW = width / 3;
+import { getAllCreations } from '@/http/mine';
+import { PlatformPressable } from '@react-navigation/elements';
+import Ionicons from '@react-native-vector-icons/ionicons';
+
+const CellItem = ({
+  index,
+  columnCount,
+  value,
+  cellW,
+}: {
+  index: number;
+  columnCount: number;
+  value: string;
+  cellW: number;
+}) => {
   return (
     <View
       style={[
         styles.itemContainer,
         {
-          backgroundColor: `rgb(${r},${g}, ${b})`,
-          width: cellW,
+          // width: cellW,
           height: cellW,
         },
       ]}
     >
-      <Text>{index}</Text>
+      {index == 0 ? (
+        <PlatformPressable
+          style={{
+            alignItems: 'center',
+            flex: 1,
+            width: '100%',
+            justifyContent: 'center',
+            backgroundColor: '#ddd',
+          }}
+        >
+          <Ionicons name="add-outline" size={30} />
+          <Text>创建分身</Text>
+        </PlatformPressable>
+      ) : (
+        <Image
+          source={{ uri: value }}
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+        />
+      )}
     </View>
   );
 };
 
 export default function CreationPage() {
-  const data = useMemo(() => {
-    return Array.from({ length: 100 }).map((value, index) => {
-      return {
-        id: index + '',
-        label: index + '',
-      };
-    });
+  const columnCount = 3;
+  const { width } = useWindowDimensions();
+  const cellW = width / columnCount;
+  const [data, setData] = useState<string[]>([]);
+  useEffect(() => {
+    (async () => {
+      const datas = await getAllCreations();
+      console.log(datas);
+      const uniqueImgs = ['', ...new Set(datas.data)];
+      setData(uniqueImgs);
+    })();
   }, []);
 
   return (
     <FlashList
       data={data}
-      masonry={true}
-      numColumns={3}
-      renderItem={({ index }) => {
-        return <CellItem index={index} />;
+      bounces={false}
+      numColumns={columnCount}
+      renderItem={({ item, index }) => {
+        return (
+          <CellItem
+            index={index}
+            value={item}
+            columnCount={columnCount}
+            cellW={cellW}
+          />
+        );
       }}
-      keyExtractor={item => {
-        return item.id;
+      keyExtractor={(item, index) => {
+        return item;
       }}
     />
   );
@@ -59,5 +100,6 @@ const styles = StyleSheet.create({
   itemContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f0f0f0',
   },
 });

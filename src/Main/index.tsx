@@ -9,8 +9,11 @@ import MinePage from '@/Mine';
 import Ionicons, {
   type IoniconsIconName,
 } from '@react-native-vector-icons/ionicons';
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+import AvatarPage from '@/Mine/Avatar';
+import { PlatformPressable } from '@react-navigation/elements';
 
 const conversation = 'conversation';
 const create = 'create';
@@ -91,9 +94,28 @@ const RootTabs = createBottomTabNavigator({
 });
 
 const RootStack = createNativeStackNavigator({
+  screenOptions: {
+    headerShadowVisible: false,
+    title: '',
+  },
   screens: {
     main: {
       screen: RootTabs,
+    },
+    avatar: {
+      screen: AvatarPage,
+      options: {},
+    },
+    avatar2: AvatarPage,
+  },
+
+  groups: {
+    modal: {
+      screenOptions: {
+        // presentation: 'modal',
+        // animation: 'none',
+      },
+      screens: {},
     },
   },
 });
