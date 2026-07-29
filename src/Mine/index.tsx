@@ -8,6 +8,7 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   Alert,
+  Platform,
 } from 'react-native';
 
 import { Tabs } from 'react-native-collapsible-tab';
@@ -23,6 +24,7 @@ import Animated from 'react-native-reanimated';
 import { PlatformPressable } from '@react-navigation/elements';
 
 import Ionicons from '@react-native-vector-icons/ionicons';
+import { NativeStackHeaderItem } from '@react-navigation/native-stack';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -117,7 +119,7 @@ export default function MinePage() {
         );
       },
 
-      unstable_headerRightItems: () => {
+      unstable_headerRightItems: (): NativeStackHeaderItem[] => {
         return [
           {
             type: 'custom',
@@ -137,6 +139,11 @@ export default function MinePage() {
             type: 'custom',
             element: (
               <PlatformPressable
+                style={{
+                  width:
+                    parseFloat(Platform.Version.toString()) > 26 ? 'auto' : 44,
+                  alignItems: 'flex-end',
+                }}
                 onPress={() => {
                   Alert.alert('点击了设置按钮');
                 }}

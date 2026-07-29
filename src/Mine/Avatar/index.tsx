@@ -3,35 +3,11 @@ import { useNavigation } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { View, Text } from 'react-native';
 
-import Animated, {
-  BounceInRight,
-  FadeIn,
-  FadeInDown,
-  FadeInLeft,
-  FadeInRight,
-  FadeOut,
-  FlipInEasyX,
-  FlipInEasyY,
-  FlipInXDown,
-  FlipInYLeft,
-  LightSpeedInLeft,
-  LightSpeedInRight,
-  PinwheelIn,
-  RollInLeft,
-  SharedTransition,
-  SlideInLeft,
-  SlideInRight,
-  SlideOutLeft,
-  withSpring,
-  ZoomIn,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AvatarPage() {
   const navigation = useNavigation();
-
-  // 可选：自定义弹簧动画效果（让过渡更自然）
-  const transition = SharedTransition.duration(550).springify();
 
   useEffect(() => {
     navigation.setOptions({

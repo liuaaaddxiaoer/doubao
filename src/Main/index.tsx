@@ -97,6 +97,8 @@ const RootStack = createNativeStackNavigator({
   screenOptions: {
     headerShadowVisible: false,
     title: '',
+
+    
   },
   screens: {
     main: {
