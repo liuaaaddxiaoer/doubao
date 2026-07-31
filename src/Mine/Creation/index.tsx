@@ -15,6 +15,10 @@ import { getAllCreations } from '@/http/mine';
 import { PlatformPressable } from '@react-navigation/elements';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import { save } from '@/utils/cameraRoll';
+import Toast, { ToastAnimationConfig } from 'react-native-toast-message';
+
+import { MyToast } from '@/components/Toast';
+import { HUD } from '@/components/HUD';
 
 type ImageLayoutInfo = {
   width: number;
@@ -110,6 +114,10 @@ export default function CreationPage({ viewWillAppear }: CreationPageProps) {
   }, []);
 
   useEffect(() => {
+    HUD.show();
+  }, []);
+
+  useEffect(() => {
     if (viewWillAppear) {
       loadData();
     }
@@ -117,9 +125,10 @@ export default function CreationPage({ viewWillAppear }: CreationPageProps) {
 
   const loadData = useCallback(async () => {
     console.log('开始请求作品数据');
+
     const [error, datas] = await getAllCreations();
     if (error) {
-      Alert.alert(error.message || '发生错误');
+      MyToast.show(error.message || '发生错误');
     } else if (datas) {
       const uniqueImgs = [...new Set(datas!.data)];
 
@@ -137,6 +146,7 @@ export default function CreationPage({ viewWillAppear }: CreationPageProps) {
       );
       setImageSizeMap(Object.fromEntries(imageSize));
       setData(uniqueImgs);
+      HUD.hide();
     }
   }, []);
 

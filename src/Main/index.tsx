@@ -15,6 +15,13 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AvatarPage from '@/Mine/Avatar';
 import { PlatformPressable } from '@react-navigation/elements';
 import { StatusBar } from 'react-native';
+import Toast from 'react-native-toast-message';
+import { useState } from 'react';
+import Animated, { FadeIn } from 'react-native-reanimated';
+
+import MyToast from '@/components/Toast';
+import HUDComponent from '@/components/HUD';
+
 
 const conversation = 'conversation';
 const create = 'create';
@@ -123,11 +130,45 @@ const RootStack = createNativeStackNavigator({
 const Navigation = createStaticNavigation(RootStack);
 
 export default function MainPage() {
+  const [toastOpacity, setToastOpacity] = useState(0);
+
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView>
         <StatusBar barStyle={'dark-content'} />
         <Navigation />
+        <Toast
+          visibilityTime={1500}
+          topOffset={50}
+          onShow={() => {
+            setToastOpacity(1);
+          }}
+          config={{
+            info: params => (
+              <Animated.View
+                style={{
+                  backgroundColor: 'black',
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderRadius: 30,
+                  opacity: toastOpacity,
+                  transitionProperty: 'opacity',
+                }}
+              >
+                <Text
+                  style={{
+                    color: 'white',
+                  }}
+                >
+                  {params.text1}
+                </Text>
+              </Animated.View>
+            ),
+          }}
+        />
+
+        <MyToast />
+        <HUDComponent />
       </GestureHandlerRootView>
     </SafeAreaProvider>
   );

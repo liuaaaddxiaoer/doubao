@@ -13,6 +13,8 @@ import { TabFlashList as FlashList } from 'react-native-collapsible-tab/flash-li
 import { getAllCreations } from '@/http/mine';
 import { PlatformPressable } from '@react-navigation/elements';
 import Ionicons from '@react-native-vector-icons/ionicons';
+import { MyToast } from '@/components/Toast';
+import { HUD } from '@/components/HUD';
 
 const CellItem = ({
   index,
@@ -77,15 +79,20 @@ export default function PrivatePage({ viewWillAppear }: PrivatePageProps) {
     }
   }, [viewWillAppear]);
 
+  useEffect(() => {
+    HUD.show();
+  }, []);
+
   const loadData = useCallback(async () => {
     console.log('开始请求私密数据');
     const [error, datas] = await getAllCreations();
     if (error) {
       console.log(error);
-      Alert.alert(error.message || '发生错误');
+      MyToast.show(error.message || '发生错误');
     } else if (datas) {
       const uniqueImgs = [...new Set(datas!.data)];
       setData(uniqueImgs);
+      HUD.hide();
     }
   }, []);
 

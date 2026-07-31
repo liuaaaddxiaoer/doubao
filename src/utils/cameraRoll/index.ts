@@ -1,9 +1,8 @@
 // 实现保存相册等功能
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import { Alert, Image, Platform, PermissionsAndroid } from 'react-native';
-
+import { MyToast } from '@/components/Toast';
 import ReactNativeBlobUtil from 'react-native-blob-util';
-import FastImage from 'react-native-fast-image';
 
 async function hasAndroidPermission() {
   const getCheckPermissionPromise = () => {
@@ -54,7 +53,7 @@ async function hasAndroidPermission() {
 
 export async function save(tag: string) {
   if (Platform.OS === 'android' && !(await hasAndroidPermission())) {
-    Alert.alert('权限不足');
+    MyToast.show('权限不足');
     return;
   }
   // Alert.alert(tag)
@@ -91,8 +90,8 @@ export async function save(tag: string) {
     console.log(photoIdentifier);
 
     await ReactNativeBlobUtil.fs.unlink(cachePath);
-    Alert.alert('保存相册成功');
+    MyToast.show('保存相册成功');
   } catch (e) {
-    Alert.alert((e as Error).message);
+    MyToast.show((e as Error).message);
   }
 }
