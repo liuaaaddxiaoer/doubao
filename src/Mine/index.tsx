@@ -16,7 +16,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import CreationPage from './Creation';
 import PrivatePage from './Private';
 import CollectPage from './Collect';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import CollapsibleTabBar from '@/components/CollapsibleTabBar';
 
@@ -86,7 +86,7 @@ const Header = () => {
 
 export default function MinePage() {
   const navigation = useNavigation();
-
+  const [currentIndex, setCurrentIndx] = useState(0)
   useFocusEffect(() => {
     navigation.getParent()?.setOptions({
       title: '',
@@ -168,21 +168,27 @@ export default function MinePage() {
 
   useEffect(() => {}, []);
 
+  const onIndexChange = (index: number) => {
+    console.log(index);
+    setCurrentIndx(index)
+  };
+
   return (
     <Tabs.Container
       lazy
       renderHeader={Header}
       renderTabBar={props => <CollapsibleTabBar {...props} />}
+      onIndexChange={onIndexChange}
     >
       <Tabs.Tab name="作品">
-        <CreationPage />
+        <CreationPage viewWillAppear={currentIndex == 0}/>
       </Tabs.Tab>
 
       <Tabs.Tab name="私密">
-        <PrivatePage />
+        <PrivatePage  viewWillAppear={currentIndex == 1}/>
       </Tabs.Tab>
       <Tabs.Tab name="喜欢">
-        <CollectPage />
+        <CollectPage viewWillAppear={currentIndex == 2}/>
       </Tabs.Tab>
     </Tabs.Container>
   );

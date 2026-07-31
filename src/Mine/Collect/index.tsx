@@ -33,7 +33,11 @@ const CellItem = ({ index, columnCount }) => {
   );
 };
 
-export default function CreationPage() {
+interface CollectPageProps  {
+  viewWillAppear: boolean
+}
+
+export default function CollectPage({viewWillAppear}: CollectPageProps) {
   const columnCount = 3;
 
   const data = useMemo(() => {

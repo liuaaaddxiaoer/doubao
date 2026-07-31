@@ -87,7 +87,11 @@ const CellItem = ({
   );
 };
 
-export default function CreationPage() {
+interface CreationPageProps {
+  viewWillAppear: boolean;
+}
+
+export default function CreationPage({ viewWillAppear }: CreationPageProps) {
   const { width, height } = useWindowDimensions();
   const columnCount = width > height ? 4 : 2;
   const cellW = width / columnCount;
@@ -106,29 +110,34 @@ export default function CreationPage() {
   }, []);
 
   useEffect(() => {
-    (async () => {
-      const [error, datas] = await getAllCreations();
-      if (error) {
-        Alert.alert(error.message || '发生错误');
-      } else if (datas) {
-        const uniqueImgs = [...new Set(datas!.data)];
+    if (viewWillAppear) {
+      loadData();
+    }
+  }, [viewWillAppear]);
 
-        const imageSize = await Promise.all(
-          uniqueImgs.map(async value => {
-            try {
-               const size = (await OriginalImage.getSize(
+  const loadData = useCallback(async () => {
+    console.log('开始请求作品数据');
+    const [error, datas] = await getAllCreations();
+    if (error) {
+      Alert.alert(error.message || '发生错误');
+    } else if (datas) {
+      const uniqueImgs = [...new Set(datas!.data)];
+
+      const imageSize = await Promise.all(
+        uniqueImgs.map(async value => {
+          try {
+            const size = (await OriginalImage.getSize(
               value,
             )) as ImageLayoutInfo;
             return [value, size];
-            } catch (error) {
-              return [value, {width: 1, height: 200}]
-            }
-          }),
-        );
-        setImageSizeMap(Object.fromEntries(imageSize));
-        setData(uniqueImgs);
-      }
-    })();
+          } catch (error) {
+            return [value, { width: 1, height: 200 }];
+          }
+        }),
+      );
+      setImageSizeMap(Object.fromEntries(imageSize));
+      setData(uniqueImgs);
+    }
   }, []);
 
   return (

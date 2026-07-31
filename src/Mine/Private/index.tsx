@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -61,22 +61,32 @@ const CellItem = ({
   );
 };
 
-export default function PrivatePage() {
+interface PrivatePageProps {
+  viewWillAppear: boolean;
+}
+
+export default function PrivatePage({ viewWillAppear }: PrivatePageProps) {
   const columnCount = 3;
   const { width } = useWindowDimensions();
   const cellW = width / columnCount;
   const [data, setData] = useState<string[]>([]);
+
   useEffect(() => {
-    (async () => {
-      const [error, datas] = await getAllCreations();
-      if (error) {
-        console.log(error);
-        Alert.alert(error.message || '发生错误');
-      } else if (datas) {
-        const uniqueImgs = [...new Set(datas!.data)];
-        setData(uniqueImgs);
-      }
-    })();
+    if (viewWillAppear) {
+      loadData();
+    }
+  }, [viewWillAppear]);
+
+  const loadData = useCallback(async () => {
+    console.log('开始请求私密数据');
+    const [error, datas] = await getAllCreations();
+    if (error) {
+      console.log(error);
+      Alert.alert(error.message || '发生错误');
+    } else if (datas) {
+      const uniqueImgs = [...new Set(datas!.data)];
+      setData(uniqueImgs);
+    }
   }, []);
 
   return (
