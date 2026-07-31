@@ -14,6 +14,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import AvatarPage from '@/Mine/Avatar';
 import { PlatformPressable } from '@react-navigation/elements';
+import { StatusBar } from 'react-native';
 
 const conversation = 'conversation';
 const create = 'create';
@@ -97,8 +98,6 @@ const RootStack = createNativeStackNavigator({
   screenOptions: {
     headerShadowVisible: false,
     title: '',
-
-    
   },
   screens: {
     main: {
@@ -127,6 +126,7 @@ export default function MainPage() {
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView>
+        <StatusBar barStyle={'dark-content'} />
         <Navigation />
       </GestureHandlerRootView>
     </SafeAreaProvider>

@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Dimensions,
   useWindowDimensions,
+  Alert,
 } from 'react-native';
 import Image from 'react-native-fast-image';
 import { TabFlashList as FlashList } from 'react-native-collapsible-tab/flash-list';
@@ -67,10 +68,14 @@ export default function PrivatePage() {
   const [data, setData] = useState<string[]>([]);
   useEffect(() => {
     (async () => {
-      const datas = await getAllCreations();
-      console.log(datas);
-      const uniqueImgs = ['', ...new Set(datas.data)];
-      setData(uniqueImgs);
+      const [error, datas] = await getAllCreations();
+      if (error) {
+        console.log(error);
+        Alert.alert(error.message || '发生错误');
+      } else if (datas) {
+        const uniqueImgs = [...new Set(datas!.data)];
+        setData(uniqueImgs);
+      }
     })();
   }, []);
 

@@ -170,6 +170,7 @@ export default function MinePage() {
 
   return (
     <Tabs.Container
+      lazy
       renderHeader={Header}
       renderTabBar={props => <CollapsibleTabBar {...props} />}
     >

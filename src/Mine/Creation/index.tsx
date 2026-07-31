@@ -5,6 +5,8 @@ import {
   StyleSheet,
   Dimensions,
   useWindowDimensions,
+  Alert,
+  Image as OriginalImage,
 } from 'react-native';
 import Image from 'react-native-fast-image';
 import { TabFlashList as FlashList } from 'react-native-collapsible-tab/flash-list';
@@ -12,6 +14,7 @@ import { TabFlashList as FlashList } from 'react-native-collapsible-tab/flash-li
 import { getAllCreations } from '@/http/mine';
 import { PlatformPressable } from '@react-navigation/elements';
 import Ionicons from '@react-native-vector-icons/ionicons';
+import { save } from '@/utils/cameraRoll';
 
 type ImageLayoutInfo = {
   width: number;
@@ -45,25 +48,41 @@ const CellItem = ({
       style={[
         styles.itemContainer,
         {
-          // width: cellW,
           height: cellH,
+          position: 'relative',
         },
       ]}
     >
-      (
       <Image
-        // resizeMode=
         source={{ uri: value }}
+        resizeMode="contain"
         onLoad={e => {
           const { width, height } = e.nativeEvent;
-          imgLoadedCallBack(value, { width, height });
+          console.log('img height width', width, height);
+          // imgLoadedCallBack(value, { width, height });
         }}
         style={{
           width: '100%',
           height: '100%',
         }}
       />
-      )
+
+      <PlatformPressable
+        onPress={() => {
+          save(value);
+        }}
+        style={[
+          StyleSheet.absoluteFill,
+          {
+            left: 'auto',
+            top: 'auto',
+            bottom: 5,
+            right: 5,
+          },
+        ]}
+      >
+        <Ionicons name="download" size={30} color={'white'} />
+      </PlatformPressable>
     </View>
   );
 };
@@ -88,10 +107,27 @@ export default function CreationPage() {
 
   useEffect(() => {
     (async () => {
-      const datas = await getAllCreations();
-      console.log(datas);
-      const uniqueImgs = [...new Set(datas.data)];
-      setData(uniqueImgs);
+      const [error, datas] = await getAllCreations();
+      if (error) {
+        Alert.alert(error.message || '发生错误');
+      } else if (datas) {
+        const uniqueImgs = [...new Set(datas!.data)];
+
+        const imageSize = await Promise.all(
+          uniqueImgs.map(async value => {
+            try {
+               const size = (await OriginalImage.getSize(
+              value,
+            )) as ImageLayoutInfo;
+            return [value, size];
+            } catch (error) {
+              return [value, {width: 1, height: 200}]
+            }
+          }),
+        );
+        setImageSizeMap(Object.fromEntries(imageSize));
+        setData(uniqueImgs);
+      }
     })();
   }, []);
 
@@ -100,7 +136,10 @@ export default function CreationPage() {
       data={data}
       bounces={false}
       masonry
+      drawDistance={300}
       numColumns={columnCount}
+      // optimizeItemArrangement
+      // removeClippedSubviews={false}
       renderItem={({ item, index }) => {
         return (
           <CellItem

@@ -13,12 +13,19 @@ http.interceptors.response.use((res) => {
     return resBody
 }, (err) => Promise.reject(err))
 
+
+function wrapPromise<T>(p: Promise<T>) : Promise<[any, T | null]> {
+    return p
+    .then((data) => [null, data] as [any, T])
+    .catch((err) => [err, null] as [any, null])
+}
+
 export default {
-    get<T>(url: string, params?: any, config?: AxiosRequestConfig): Promise<T> {
-        return http.get(url, {params, ...config})
+    get<T>(url: string, params?: any, config?: AxiosRequestConfig){
+        return wrapPromise<T>(http.get(url, {params, ...config}))
     },
 
-    post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-        return http.post(url, data, config)
+    post<T>(url: string, data?: any, config?: AxiosRequestConfig) {
+        return wrapPromise<T>(http.post(url, data, config))
     }
 }
