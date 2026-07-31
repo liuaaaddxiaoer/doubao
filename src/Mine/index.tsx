@@ -11,23 +11,49 @@ import {
   Platform,
 } from 'react-native';
 
-import { Tabs } from 'react-native-collapsible-tab';
+import {
+  Tabs,
+  useHeaderMeasurements,
+  useCollapseProgress,
+} from 'react-native-collapsible-tab';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import CreationPage from './Creation';
 import PrivatePage from './Private';
 import CollectPage from './Collect';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import CollapsibleTabBar from '@/components/CollapsibleTabBar';
 
-import Animated from 'react-native-reanimated';
+import Animated, { useAnimatedReaction } from 'react-native-reanimated';
 import { PlatformPressable } from '@react-navigation/elements';
 
 import Ionicons from '@react-native-vector-icons/ionicons';
 import { NativeStackHeaderItem } from '@react-navigation/native-stack';
+import { MyToast } from '@/components/Toast';
+import { runOnJS } from 'react-native-worklets';
 
-const Header = () => {
+const Header = ({
+  isCollaseCallBack,
+}: {
+  isCollaseCallBack: (isCollase: boolean) => void;
+}) => {
   const navigation = useNavigation();
+  const { top } = useHeaderMeasurements();
+  const progress = useCollapseProgress();
+
+  const collaseTop = (val: boolean) => {
+    isCollaseCallBack(val);
+  };
+
+  useAnimatedReaction(
+    () => {
+      return progress.value >= 1;
+    },
+    val => {
+      runOnJS(collaseTop)(val);
+    },
+    [],
+  );
 
   return (
     <View
@@ -86,10 +112,9 @@ const Header = () => {
 
 export default function MinePage() {
   const navigation = useNavigation();
-  const [currentIndex, setCurrentIndx] = useState(0)
-  useFocusEffect(() => {
+  const [currentIndex, setCurrentIndx] = useState(0);
+  useEffect(() => {
     navigation.getParent()?.setOptions({
-      title: '',
       headerRight: () => {
         return (
           <View
@@ -156,39 +181,42 @@ export default function MinePage() {
         ];
       },
     });
-
-    return () => {
-      navigation.getParent()?.setOptions({
-        title: '',
-        headerRight: undefined,
-        unstable_headerRightItems: undefined,
-      });
-    };
   });
-
-  useEffect(() => {}, []);
 
   const onIndexChange = (index: number) => {
     console.log(index);
-    setCurrentIndx(index)
+    setCurrentIndx(index);
   };
+
+  const renderHeader = useCallback(() => {
+    return <Header isCollaseCallBack={isCollaseCallBack} />;
+  }, []);
+
+  const isCollaseCallBack = useCallback((isCollase: boolean) => {
+    navigation.getParent()?.setOptions({
+      title: isCollase ? '幸福生活' : '',
+    });
+  }, []);
 
   return (
     <Tabs.Container
       lazy
-      renderHeader={Header}
+      renderHeader={renderHeader}
       renderTabBar={props => <CollapsibleTabBar {...props} />}
       onIndexChange={onIndexChange}
+      pagerProps={{
+        scrollEnabled: false,
+      }}
     >
       <Tabs.Tab name="作品">
-        <CreationPage viewWillAppear={currentIndex == 0}/>
+        <CreationPage viewWillAppear={currentIndex == 0} />
       </Tabs.Tab>
 
       <Tabs.Tab name="私密">
-        <PrivatePage  viewWillAppear={currentIndex == 1}/>
+        <PrivatePage viewWillAppear={currentIndex == 1} />
       </Tabs.Tab>
       <Tabs.Tab name="喜欢">
-        <CollectPage viewWillAppear={currentIndex == 2}/>
+        <CollectPage viewWillAppear={currentIndex == 2} />
       </Tabs.Tab>
     </Tabs.Container>
   );

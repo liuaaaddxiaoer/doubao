@@ -88,6 +88,7 @@ export default function PrivatePage({ viewWillAppear }: PrivatePageProps) {
     const [error, datas] = await getAllCreations();
     if (error) {
       console.log(error);
+      HUD.hide();
       MyToast.show(error.message || '发生错误');
     } else if (datas) {
       const uniqueImgs = [...new Set(datas!.data)];

@@ -129,6 +129,7 @@ export default function CreationPage({ viewWillAppear }: CreationPageProps) {
     const [error, datas] = await getAllCreations();
     if (error) {
       MyToast.show(error.message || '发生错误');
+      HUD.hide();
     } else if (datas) {
       const uniqueImgs = [...new Set(datas!.data)];
 
