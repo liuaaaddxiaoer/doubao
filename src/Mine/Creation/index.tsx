@@ -7,6 +7,8 @@ import {
   useWindowDimensions,
   Alert,
   Image as OriginalImage,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import Image from 'react-native-fast-image';
 import { TabFlashList as FlashList } from 'react-native-collapsible-tab/flash-list';
@@ -16,6 +18,7 @@ import { PlatformPressable } from '@react-navigation/elements';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import { save } from '@/utils/cameraRoll';
 import Toast, { ToastAnimationConfig } from 'react-native-toast-message';
+import { useHeaderMeasurements } from 'react-native-collapsible-tab';
 
 import { MyToast } from '@/components/Toast';
 import { HUD } from '@/components/HUD';
@@ -100,7 +103,12 @@ export default function CreationPage({ viewWillAppear }: CreationPageProps) {
   const columnCount = width > height ? 4 : 2;
   const cellW = width / columnCount;
   const [data, setData] = useState<string[]>([]);
-
+  const [refreshing, setRefreshing] = useState(false);
+  const { height: headerHeight } = useHeaderMeasurements();
+  const topHeight = useMemo(() => {
+    return headerHeight + 50;
+  }, [headerHeight]);
+  // Alert.alert('headerHeight', headerHeight + '');
   const [imageSizeMap, setImageSizeMap] = useState<
     Record<string, ImageLayoutInfo>
   >({});
@@ -122,6 +130,41 @@ export default function CreationPage({ viewWillAppear }: CreationPageProps) {
       loadData();
     }
   }, [viewWillAppear]);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  }, []);
+
+  const loadMore = useCallback(async () => {
+    if (refreshing) return;
+    console.log('开始请求作品数据');
+
+    const [error, datas] = await getAllCreations();
+    if (error) {
+      MyToast.show(error.message || '发生错误');
+      HUD.hide();
+    } else if (datas) {
+      const uniqueImgs = [...new Set(datas!.data)];
+
+      const imageSize = await Promise.all(
+        uniqueImgs.map(async value => {
+          try {
+            const size = (await OriginalImage.getSize(
+              value,
+            )) as ImageLayoutInfo;
+            return [value, size];
+          } catch (error) {
+            return [value, { width: 1, height: 200 }];
+          }
+        }),
+      );
+      setImageSizeMap(prev => ({ ...prev, ...Object.fromEntries(imageSize) }));
+      setData(prev => [...prev, ...uniqueImgs]);
+      HUD.hide();
+    }
+  }, []);
 
   const loadData = useCallback(async () => {
     console.log('开始请求作品数据');
@@ -154,12 +197,37 @@ export default function CreationPage({ viewWillAppear }: CreationPageProps) {
   return (
     <FlashList
       data={data}
-      bounces={false}
+      bounces={true}
       masonry
       drawDistance={300}
       numColumns={columnCount}
-      // optimizeItemArrangement
-      // removeClippedSubviews={false}
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
+      refreshControl={
+        <RefreshControl
+          title="Loading..."
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+          tintColor="red" // iOS 菊花颜色
+          colors={['red', 'blue']} // Android 加载条颜色
+          progressViewOffset={topHeight}
+          progressBackgroundColor={'pink'}
+        />
+      }
+      onEndReachedThreshold={0.3}
+      onEndReached={() => {
+        console.log('触底了');
+        loadMore();
+      }}
+      ListFooterComponent={() => {
+        return (
+          <View style={{
+            display: data.length > 0 ? 'flex' : 'none',
+          }}>
+            <ActivityIndicator size="large" color="red" />
+          </View>
+        );
+      }}
       renderItem={({ item, index }) => {
         return (
           <CellItem

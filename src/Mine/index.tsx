@@ -181,6 +181,7 @@ export default function MinePage() {
         ];
       },
     });
+
   });
 
   const onIndexChange = (index: number) => {
