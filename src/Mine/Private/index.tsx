@@ -10,7 +10,7 @@ import {
 import Image from 'react-native-fast-image';
 import { TabFlashList as FlashList } from 'react-native-collapsible-tab/flash-list';
 
-import { getAllCreations } from '@/http/mine';
+import { getAllCreations, getHome } from '@/http/mine';
 import { PlatformPressable } from '@react-navigation/elements';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import { MyToast } from '@/components/Toast';
@@ -85,13 +85,13 @@ export default function PrivatePage({ viewWillAppear }: PrivatePageProps) {
 
   const loadData = useCallback(async () => {
     console.log('开始请求私密数据');
-    const [error, datas] = await getAllCreations();
+    const [error, datas] = await getHome();
     if (error) {
       console.log(error);
       HUD.hide();
       MyToast.show(error.message || '发生错误');
     } else if (datas) {
-      const uniqueImgs = [...new Set(datas!.data)];
+      const uniqueImgs = [...new Set(datas!.items.map(item => item.cover))];
       setData(uniqueImgs);
       HUD.hide();
     }

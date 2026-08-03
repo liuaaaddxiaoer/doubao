@@ -1,15 +1,15 @@
 import axios, { AxiosRequestConfig } from 'axios';
 
 const http = axios.create({
-  // baseURL: 'http://10.60.6.42:8000',
-  baseURL: 'http://192.168.2.202:8000',
+  baseURL: 'https://tanlang008-up14load.hf.space/api',
+  // baseURL: 'http://192.168.2.202:8000',
   timeout: 60000,
 });
 
 http.interceptors.response.use(
   res => {
     const resBody = res.data;
-    if (resBody.code != 200) {
+    if (resBody.code != 0) {
       return Promise.reject(resBody);
     }
     return resBody;

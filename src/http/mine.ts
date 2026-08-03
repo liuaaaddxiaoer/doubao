@@ -1,11 +1,19 @@
-import http from './index'
+import http from './index';
 
 export type ResponseType<T = any> = {
-    code: number,
-    msg: string,
-    data: T
+  code: number;
+  msg: string;
+  items: T;
+};
+
+export type HomeResponseType = {
+    cover: string;
 }
 
 export function getAllCreations() {
-    return http.get<ResponseType<string[]>>('/kvm')
-} 
+  return http.get<ResponseType<string[]>>('/home');
+}
+
+export function getHome() {
+  return http.get<ResponseType<HomeResponseType[]>>('/home');
+}
