@@ -2,17 +2,17 @@ import { createStaticNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import ConversationPage from '@/Conversation';
-import CreatePage from '@/Create';
-import CloudDishPage from '@/CloudDisk';
-import MinePage from '@/Mine';
+import ConversationPage from '@/pages/Conversation';
+import CreatePage from '@/pages/Create';
+import CloudDishPage from '@/pages/CloudDisk';
+import MinePage from '@/pages/Mine';
 import Ionicons, {
   type IoniconsIconName,
 } from '@react-native-vector-icons/ionicons';
 import { View, Text, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import AvatarPage from '@/Mine/Avatar';
+import AvatarPage from '@/pages/Mine/Avatar';
 import { PlatformPressable } from '@react-navigation/elements';
 import { StatusBar } from 'react-native';
 import Toast from 'react-native-toast-message';
